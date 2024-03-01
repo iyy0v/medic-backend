@@ -1,12 +1,12 @@
-import { list} from '@keystone-6/core';
+import { list } from '@keystone-6/core';
 import { allowAll } from '@keystone-6/core/access';
-import { image, relationship, text, timestamp } from '@keystone-6/core/fields';
+import { float, image, relationship, text, timestamp } from '@keystone-6/core/fields';
 
 export const Product = list({
     access: allowAll,
 
     fields: {
-      title: text({ validation: { isRequired: true } }),
+      name: text({ validation: { isRequired: true } }),
 
       description: text(),
 
@@ -23,6 +23,10 @@ export const Product = list({
           inlineCreate: { fields: ['name'] },
         },
       }),
+
+      price: float({ 
+        validation: { isRequired: true, min: 0 },
+      },),
 
       vendor: relationship({
         ref: 'User.publishedProd',
@@ -54,6 +58,16 @@ export const Product = list({
         defaultValue: { kind: 'now' },
       }),
 
-      images: image({ storage: 'my_local_images' }),
-    }, 
+      images: relationship({
+        ref: 'Image.product',
+        many: true,
+        ui: {
+          displayMode: 'cards',
+          cardFields: ['image'],
+          inlineEdit: { fields: ['image'] },
+          linkToItem: true,
+          inlineConnect: true,
+        },
+      }),
+    } 
 })

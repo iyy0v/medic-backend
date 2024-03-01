@@ -284,7 +284,7 @@ input UserRelateToManyForCreateInput {
 
 type Product {
   id: ID!
-  title: String
+  name: String
   description: String
   tags(where: TagWhereInput! = {}, orderBy: [TagOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: TagWhereUniqueInput): [Tag!]
   tagsCount(where: TagWhereInput! = {}): Int
@@ -292,23 +292,8 @@ type Product {
   buyers(where: UserWhereInput! = {}, orderBy: [UserOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: UserWhereUniqueInput): [User!]
   buyersCount(where: UserWhereInput! = {}): Int
   createdAt: DateTime
-  images: ImageFieldOutput
-}
-
-type ImageFieldOutput {
-  id: ID!
-  filesize: Int!
-  width: Int!
-  height: Int!
-  extension: ImageExtension!
-  url: String!
-}
-
-enum ImageExtension {
-  jpg
-  png
-  webp
-  gif
+  images(where: ImageWhereInput! = {}, orderBy: [ImageOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ImageWhereUniqueInput): [Image!]
+  imagesCount(where: ImageWhereInput! = {}): Int
 }
 
 input ProductWhereUniqueInput {
@@ -320,12 +305,13 @@ input ProductWhereInput {
   OR: [ProductWhereInput!]
   NOT: [ProductWhereInput!]
   id: IDFilter
-  title: StringFilter
+  name: StringFilter
   description: StringFilter
   tags: TagManyRelationFilter
   vendor: UserWhereInput
   buyers: UserManyRelationFilter
   createdAt: DateTimeNullableFilter
+  images: ImageManyRelationFilter
 }
 
 input TagManyRelationFilter {
@@ -334,21 +320,27 @@ input TagManyRelationFilter {
   none: TagWhereInput
 }
 
+input ImageManyRelationFilter {
+  every: ImageWhereInput
+  some: ImageWhereInput
+  none: ImageWhereInput
+}
+
 input ProductOrderByInput {
   id: OrderDirection
-  title: OrderDirection
+  name: OrderDirection
   description: OrderDirection
   createdAt: OrderDirection
 }
 
 input ProductUpdateInput {
-  title: String
+  name: String
   description: String
   tags: TagRelateToManyForUpdateInput
   vendor: UserRelateToOneForUpdateInput
   buyers: UserRelateToManyForUpdateInput
   createdAt: DateTime
-  images: ImageFieldInput
+  images: ImageRelateToManyForUpdateInput
 }
 
 input TagRelateToManyForUpdateInput {
@@ -364,12 +356,12 @@ input UserRelateToOneForUpdateInput {
   disconnect: Boolean
 }
 
-input ImageFieldInput {
-  upload: Upload!
+input ImageRelateToManyForUpdateInput {
+  disconnect: [ImageWhereUniqueInput!]
+  set: [ImageWhereUniqueInput!]
+  create: [ImageCreateInput!]
+  connect: [ImageWhereUniqueInput!]
 }
-
-"""The `Upload` scalar type represents a file upload."""
-scalar Upload
 
 input ProductUpdateArgs {
   where: ProductWhereUniqueInput!
@@ -377,13 +369,13 @@ input ProductUpdateArgs {
 }
 
 input ProductCreateInput {
-  title: String
+  name: String
   description: String
   tags: TagRelateToManyForCreateInput
   vendor: UserRelateToOneForCreateInput
   buyers: UserRelateToManyForCreateInput
   createdAt: DateTime
-  images: ImageFieldInput
+  images: ImageRelateToManyForCreateInput
 }
 
 input TagRelateToManyForCreateInput {
@@ -394,6 +386,11 @@ input TagRelateToManyForCreateInput {
 input UserRelateToOneForCreateInput {
   create: UserCreateInput
   connect: UserWhereUniqueInput
+}
+
+input ImageRelateToManyForCreateInput {
+  create: [ImageCreateInput!]
+  connect: [ImageWhereUniqueInput!]
 }
 
 type Tag {
@@ -436,6 +433,77 @@ input TagCreateInput {
   products: ProductRelateToManyForCreateInput
 }
 
+type Image {
+  id: ID!
+  product: Product
+  image: ImageFieldOutput
+}
+
+type ImageFieldOutput {
+  id: ID!
+  filesize: Int!
+  width: Int!
+  height: Int!
+  extension: ImageExtension!
+  url: String!
+}
+
+enum ImageExtension {
+  jpg
+  png
+  webp
+  gif
+}
+
+input ImageWhereUniqueInput {
+  id: ID
+}
+
+input ImageWhereInput {
+  AND: [ImageWhereInput!]
+  OR: [ImageWhereInput!]
+  NOT: [ImageWhereInput!]
+  id: IDFilter
+  product: ProductWhereInput
+}
+
+input ImageOrderByInput {
+  id: OrderDirection
+}
+
+input ImageUpdateInput {
+  product: ProductRelateToOneForUpdateInput
+  image: ImageFieldInput
+}
+
+input ProductRelateToOneForUpdateInput {
+  create: ProductCreateInput
+  connect: ProductWhereUniqueInput
+  disconnect: Boolean
+}
+
+input ImageFieldInput {
+  upload: Upload!
+}
+
+"""The `Upload` scalar type represents a file upload."""
+scalar Upload
+
+input ImageUpdateArgs {
+  where: ImageWhereUniqueInput!
+  data: ImageUpdateInput!
+}
+
+input ImageCreateInput {
+  product: ProductRelateToOneForCreateInput
+  image: ImageFieldInput
+}
+
+input ProductRelateToOneForCreateInput {
+  create: ProductCreateInput
+  connect: ProductWhereUniqueInput
+}
+
 """
 The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
 """
@@ -466,6 +534,12 @@ type Mutation {
   updateTags(data: [TagUpdateArgs!]!): [Tag]
   deleteTag(where: TagWhereUniqueInput!): Tag
   deleteTags(where: [TagWhereUniqueInput!]!): [Tag]
+  createImage(data: ImageCreateInput!): Image
+  createImages(data: [ImageCreateInput!]!): [Image]
+  updateImage(where: ImageWhereUniqueInput!, data: ImageUpdateInput!): Image
+  updateImages(data: [ImageUpdateArgs!]!): [Image]
+  deleteImage(where: ImageWhereUniqueInput!): Image
+  deleteImages(where: [ImageWhereUniqueInput!]!): [Image]
   endSession: Boolean!
   authenticateUserWithPassword(email: String!, password: String!): UserAuthenticationWithPasswordResult
   createInitialUser(data: CreateInitialUserInput!): UserAuthenticationWithPasswordSuccess!
@@ -514,6 +588,9 @@ type Query {
   tags(where: TagWhereInput! = {}, orderBy: [TagOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: TagWhereUniqueInput): [Tag!]
   tag(where: TagWhereUniqueInput!): Tag
   tagsCount(where: TagWhereInput! = {}): Int
+  images(where: ImageWhereInput! = {}, orderBy: [ImageOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ImageWhereUniqueInput): [Image!]
+  image(where: ImageWhereUniqueInput!): Image
+  imagesCount(where: ImageWhereInput! = {}): Int
   keystone: KeystoneMeta!
   authenticatedItem: AuthenticatedItem
   validateUserPasswordResetToken(email: String!, token: String!): ValidateUserPasswordResetTokenResult

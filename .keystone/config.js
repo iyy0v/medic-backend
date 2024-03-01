@@ -23,7 +23,7 @@ __export(keystone_exports, {
   default: () => keystone_default
 });
 module.exports = __toCommonJS(keystone_exports);
-var import_core5 = require("@keystone-6/core");
+var import_core6 = require("@keystone-6/core");
 
 // schemas/User.ts
 var import_core = require("@keystone-6/core");
@@ -187,7 +187,7 @@ var import_fields6 = require("@keystone-6/core/fields");
 var Product = (0, import_core3.list)({
   access: import_access4.allowAll,
   fields: {
-    title: (0, import_fields6.text)({ validation: { isRequired: true } }),
+    name: (0, import_fields6.text)({ validation: { isRequired: true } }),
     description: (0, import_fields6.text)(),
     tags: (0, import_fields6.relationship)({
       ref: "Tag.products",
@@ -201,6 +201,7 @@ var Product = (0, import_core3.list)({
         inlineCreate: { fields: ["name"] }
       }
     }),
+    price: (0, import_fields6.float)({ validation: { isRequired: true } }),
     vendor: (0, import_fields6.relationship)({
       ref: "User.publishedProd",
       many: false,
@@ -226,7 +227,17 @@ var Product = (0, import_core3.list)({
     createdAt: (0, import_fields6.timestamp)({
       defaultValue: { kind: "now" }
     }),
-    images: (0, import_fields6.image)({ storage: "my_local_images" })
+    images: (0, import_fields6.relationship)({
+      ref: "Image.product",
+      many: true,
+      ui: {
+        displayMode: "cards",
+        cardFields: ["image"],
+        inlineEdit: { fields: ["image"] },
+        linkToItem: true,
+        inlineConnect: true
+      }
+    })
   }
 });
 
@@ -242,12 +253,35 @@ var Tag = (0, import_core4.list)({
   }
 });
 
+// schemas/Image.ts
+var import_core5 = require("@keystone-6/core");
+var import_access6 = require("@keystone-6/core/access");
+var import_fields8 = require("@keystone-6/core/fields");
+var Image = (0, import_core5.list)({
+  fields: {
+    product: (0, import_fields8.relationship)({
+      ref: "Product.images",
+      many: false,
+      ui: {
+        displayMode: "cards",
+        cardFields: ["name", "vendor"],
+        inlineEdit: { fields: ["name", "vendor"] },
+        linkToItem: true,
+        inlineConnect: true
+      }
+    }),
+    image: (0, import_fields8.image)({ storage: "my_local_images" })
+  },
+  access: import_access6.allowAll
+});
+
 // schema.ts
 var lists = {
   User,
   Role,
   Product,
-  Tag
+  Tag,
+  Image
 };
 
 // auth.ts
@@ -282,7 +316,7 @@ var session = (0, import_session.statelessSessions)({
 
 // keystone.ts
 var keystone_default = withAuth(
-  (0, import_core5.config)({
+  (0, import_core6.config)({
     db: {
       provider: "sqlite",
       url: "file:./keystone.db"

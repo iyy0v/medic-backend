@@ -42,19 +42,15 @@ model Role {
 }
 
 model Product {
-  id               String    @id @default(cuid())
-  title            String    @default("")
-  description      String    @default("")
-  tags             Tag[]     @relation("Product_tags")
-  vendor           User?     @relation("Product_vendor", fields: [vendorId], references: [id])
-  vendorId         String?   @map("vendor")
-  buyers           User[]    @relation("Product_buyers")
-  createdAt        DateTime? @default(now())
-  images_filesize  Int?
-  images_extension String?
-  images_width     Int?
-  images_height    Int?
-  images_id        String?
+  id          String    @id @default(cuid())
+  name        String    @default("")
+  description String    @default("")
+  tags        Tag[]     @relation("Product_tags")
+  vendor      User?     @relation("Product_vendor", fields: [vendorId], references: [id])
+  vendorId    String?   @map("vendor")
+  buyers      User[]    @relation("Product_buyers")
+  createdAt   DateTime? @default(now())
+  images      Image[]   @relation("Image_product")
 
   @@index([vendorId])
 }
@@ -63,4 +59,17 @@ model Tag {
   id       String    @id @default(cuid())
   name     String    @default("")
   products Product[] @relation("Product_tags")
+}
+
+model Image {
+  id              String   @id @default(cuid())
+  product         Product? @relation("Image_product", fields: [productId], references: [id])
+  productId       String?  @map("product")
+  image_filesize  Int?
+  image_extension String?
+  image_width     Int?
+  image_height    Int?
+  image_id        String?
+
+  @@index([productId])
 }
