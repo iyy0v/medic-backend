@@ -46,6 +46,7 @@ model Product {
   name        String    @default("")
   description String    @default("")
   tags        Tag[]     @relation("Product_tags")
+  price       Float
   vendor      User?     @relation("Product_vendor", fields: [vendorId], references: [id])
   vendorId    String?   @map("vendor")
   buyers      User[]    @relation("Product_buyers")

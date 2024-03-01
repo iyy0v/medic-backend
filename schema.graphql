@@ -288,6 +288,7 @@ type Product {
   description: String
   tags(where: TagWhereInput! = {}, orderBy: [TagOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: TagWhereUniqueInput): [Tag!]
   tagsCount(where: TagWhereInput! = {}): Int
+  price: Float
   vendor: User
   buyers(where: UserWhereInput! = {}, orderBy: [UserOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: UserWhereUniqueInput): [User!]
   buyersCount(where: UserWhereInput! = {}): Int
@@ -308,6 +309,7 @@ input ProductWhereInput {
   name: StringFilter
   description: StringFilter
   tags: TagManyRelationFilter
+  price: FloatFilter
   vendor: UserWhereInput
   buyers: UserManyRelationFilter
   createdAt: DateTimeNullableFilter
@@ -320,6 +322,17 @@ input TagManyRelationFilter {
   none: TagWhereInput
 }
 
+input FloatFilter {
+  equals: Float
+  in: [Float!]
+  notIn: [Float!]
+  lt: Float
+  lte: Float
+  gt: Float
+  gte: Float
+  not: FloatFilter
+}
+
 input ImageManyRelationFilter {
   every: ImageWhereInput
   some: ImageWhereInput
@@ -330,6 +343,7 @@ input ProductOrderByInput {
   id: OrderDirection
   name: OrderDirection
   description: OrderDirection
+  price: OrderDirection
   createdAt: OrderDirection
 }
 
@@ -337,6 +351,7 @@ input ProductUpdateInput {
   name: String
   description: String
   tags: TagRelateToManyForUpdateInput
+  price: Float
   vendor: UserRelateToOneForUpdateInput
   buyers: UserRelateToManyForUpdateInput
   createdAt: DateTime
@@ -372,6 +387,7 @@ input ProductCreateInput {
   name: String
   description: String
   tags: TagRelateToManyForCreateInput
+  price: Float
   vendor: UserRelateToOneForCreateInput
   buyers: UserRelateToManyForCreateInput
   createdAt: DateTime

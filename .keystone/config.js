@@ -201,7 +201,9 @@ var Product = (0, import_core3.list)({
         inlineCreate: { fields: ["name"] }
       }
     }),
-    price: (0, import_fields6.float)({ validation: { isRequired: true } }),
+    price: (0, import_fields6.float)({
+      validation: { isRequired: true, min: 0 }
+    }),
     vendor: (0, import_fields6.relationship)({
       ref: "User.publishedProd",
       many: false,

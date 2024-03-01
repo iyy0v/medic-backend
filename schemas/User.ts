@@ -8,6 +8,7 @@ import {
     timestamp,
     checkbox,
     select,
+    image,
 } from '@keystone-6/core/fields';
   
 
@@ -35,6 +36,8 @@ export const User = list({
             isFilterable: true
         }),
 
+        phone: text({ validation: { isRequired: true } }),
+
         password: password({ validation: { isRequired: true } }),
 
         publishedProd: relationship({ ref: 'Product.vendor', many: true }),
@@ -48,6 +51,8 @@ export const User = list({
                 update: permissions.canManageUsers,
             },
         }),
+
+        picture: image({ storage: 'my_local_images' }),
 
         createdAt: timestamp({
             defaultValue: { kind: 'now' },
