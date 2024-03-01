@@ -4,10 +4,14 @@
 type User {
   id: ID!
   name: String
+  gender: UserGenderType
+  birthdate: DateTime
   email: String
   password: PasswordState
-  posts(where: PostWhereInput! = {}, orderBy: [PostOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: PostWhereUniqueInput): [Post!]
-  postsCount(where: PostWhereInput! = {}): Int
+  publishedProd(where: ProductWhereInput! = {}, orderBy: [ProductOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ProductWhereUniqueInput): [Product!]
+  publishedProdCount(where: ProductWhereInput! = {}): Int
+  historyProd(where: ProductWhereInput! = {}, orderBy: [ProductOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ProductWhereUniqueInput): [Product!]
+  historyProdCount(where: ProductWhereInput! = {}): Int
   role: Role
   createdAt: DateTime
   isInitialUser: Boolean
@@ -16,11 +20,16 @@ type User {
   passwordResetRedeemedAt: DateTime
 }
 
-type PasswordState {
-  isSet: Boolean!
+enum UserGenderType {
+  M
+  F
 }
 
 scalar DateTime @specifiedBy(url: "https://datatracker.ietf.org/doc/html/rfc3339#section-5.6")
+
+type PasswordState {
+  isSet: Boolean!
+}
 
 input UserWhereUniqueInput {
   id: ID
@@ -33,8 +42,11 @@ input UserWhereInput {
   NOT: [UserWhereInput!]
   id: IDFilter
   name: StringFilter
+  gender: UserGenderTypeNullableFilter
+  birthdate: DateTimeNullableFilter
   email: StringFilter
-  posts: PostManyRelationFilter
+  publishedProd: ProductManyRelationFilter
+  historyProd: ProductManyRelationFilter
   role: RoleWhereInput
   createdAt: DateTimeNullableFilter
   isInitialUser: BooleanFilter
@@ -82,10 +94,11 @@ input NestedStringFilter {
   not: NestedStringFilter
 }
 
-input PostManyRelationFilter {
-  every: PostWhereInput
-  some: PostWhereInput
-  none: PostWhereInput
+input UserGenderTypeNullableFilter {
+  equals: UserGenderType
+  in: [UserGenderType!]
+  notIn: [UserGenderType!]
+  not: UserGenderTypeNullableFilter
 }
 
 input DateTimeNullableFilter {
@@ -97,6 +110,12 @@ input DateTimeNullableFilter {
   gt: DateTime
   gte: DateTime
   not: DateTimeNullableFilter
+}
+
+input ProductManyRelationFilter {
+  every: ProductWhereInput
+  some: ProductWhereInput
+  none: ProductWhereInput
 }
 
 input BooleanFilter {
@@ -111,6 +130,8 @@ input PasswordFilter {
 input UserOrderByInput {
   id: OrderDirection
   name: OrderDirection
+  gender: OrderDirection
+  birthdate: OrderDirection
   email: OrderDirection
   createdAt: OrderDirection
   isInitialUser: OrderDirection
@@ -125,9 +146,12 @@ enum OrderDirection {
 
 input UserUpdateInput {
   name: String
+  gender: UserGenderType
+  birthdate: DateTime
   email: String
   password: String
-  posts: PostRelateToManyForUpdateInput
+  publishedProd: ProductRelateToManyForUpdateInput
+  historyProd: ProductRelateToManyForUpdateInput
   role: RoleRelateToOneForUpdateInput
   createdAt: DateTime
   isInitialUser: Boolean
@@ -136,11 +160,11 @@ input UserUpdateInput {
   passwordResetRedeemedAt: DateTime
 }
 
-input PostRelateToManyForUpdateInput {
-  disconnect: [PostWhereUniqueInput!]
-  set: [PostWhereUniqueInput!]
-  create: [PostCreateInput!]
-  connect: [PostWhereUniqueInput!]
+input ProductRelateToManyForUpdateInput {
+  disconnect: [ProductWhereUniqueInput!]
+  set: [ProductWhereUniqueInput!]
+  create: [ProductCreateInput!]
+  connect: [ProductWhereUniqueInput!]
 }
 
 input RoleRelateToOneForUpdateInput {
@@ -156,9 +180,12 @@ input UserUpdateArgs {
 
 input UserCreateInput {
   name: String
+  gender: UserGenderType
+  birthdate: DateTime
   email: String
   password: String
-  posts: PostRelateToManyForCreateInput
+  publishedProd: ProductRelateToManyForCreateInput
+  historyProd: ProductRelateToManyForCreateInput
   role: RoleRelateToOneForCreateInput
   createdAt: DateTime
   isInitialUser: Boolean
@@ -167,9 +194,9 @@ input UserCreateInput {
   passwordResetRedeemedAt: DateTime
 }
 
-input PostRelateToManyForCreateInput {
-  create: [PostCreateInput!]
-  connect: [PostWhereUniqueInput!]
+input ProductRelateToManyForCreateInput {
+  create: [ProductCreateInput!]
+  connect: [ProductWhereUniqueInput!]
 }
 
 input RoleRelateToOneForCreateInput {
@@ -184,8 +211,6 @@ type Role {
   canSeeOtherUsers: Boolean
   canManageUsers: Boolean
   canManageRoles: Boolean
-  canManageCart: Boolean
-  canManageOrders: Boolean
   assignedTo(where: UserWhereInput! = {}, orderBy: [UserOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: UserWhereUniqueInput): [User!]
   assignedToCount(where: UserWhereInput! = {}): Int
 }
@@ -204,8 +229,6 @@ input RoleWhereInput {
   canSeeOtherUsers: BooleanFilter
   canManageUsers: BooleanFilter
   canManageRoles: BooleanFilter
-  canManageCart: BooleanFilter
-  canManageOrders: BooleanFilter
   assignedTo: UserManyRelationFilter
 }
 
@@ -222,8 +245,6 @@ input RoleOrderByInput {
   canSeeOtherUsers: OrderDirection
   canManageUsers: OrderDirection
   canManageRoles: OrderDirection
-  canManageCart: OrderDirection
-  canManageOrders: OrderDirection
 }
 
 input RoleUpdateInput {
@@ -232,8 +253,6 @@ input RoleUpdateInput {
   canSeeOtherUsers: Boolean
   canManageUsers: Boolean
   canManageRoles: Boolean
-  canManageCart: Boolean
-  canManageOrders: Boolean
   assignedTo: UserRelateToManyForUpdateInput
 }
 
@@ -255,8 +274,6 @@ input RoleCreateInput {
   canSeeOtherUsers: Boolean
   canManageUsers: Boolean
   canManageRoles: Boolean
-  canManageCart: Boolean
-  canManageOrders: Boolean
   assignedTo: UserRelateToManyForCreateInput
 }
 
@@ -265,31 +282,50 @@ input UserRelateToManyForCreateInput {
   connect: [UserWhereUniqueInput!]
 }
 
-type Post {
+type Product {
   id: ID!
   title: String
-  content: Post_content_Document
-  author: User
+  description: String
   tags(where: TagWhereInput! = {}, orderBy: [TagOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: TagWhereUniqueInput): [Tag!]
   tagsCount(where: TagWhereInput! = {}): Int
+  vendor: User
+  buyers(where: UserWhereInput! = {}, orderBy: [UserOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: UserWhereUniqueInput): [User!]
+  buyersCount(where: UserWhereInput! = {}): Int
+  createdAt: DateTime
+  images: ImageFieldOutput
 }
 
-type Post_content_Document {
-  document(hydrateRelationships: Boolean! = false): JSON!
+type ImageFieldOutput {
+  id: ID!
+  filesize: Int!
+  width: Int!
+  height: Int!
+  extension: ImageExtension!
+  url: String!
 }
 
-input PostWhereUniqueInput {
+enum ImageExtension {
+  jpg
+  png
+  webp
+  gif
+}
+
+input ProductWhereUniqueInput {
   id: ID
 }
 
-input PostWhereInput {
-  AND: [PostWhereInput!]
-  OR: [PostWhereInput!]
-  NOT: [PostWhereInput!]
+input ProductWhereInput {
+  AND: [ProductWhereInput!]
+  OR: [ProductWhereInput!]
+  NOT: [ProductWhereInput!]
   id: IDFilter
   title: StringFilter
-  author: UserWhereInput
+  description: StringFilter
   tags: TagManyRelationFilter
+  vendor: UserWhereInput
+  buyers: UserManyRelationFilter
+  createdAt: DateTimeNullableFilter
 }
 
 input TagManyRelationFilter {
@@ -298,22 +334,21 @@ input TagManyRelationFilter {
   none: TagWhereInput
 }
 
-input PostOrderByInput {
+input ProductOrderByInput {
   id: OrderDirection
   title: OrderDirection
+  description: OrderDirection
+  createdAt: OrderDirection
 }
 
-input PostUpdateInput {
+input ProductUpdateInput {
   title: String
-  content: JSON
-  author: UserRelateToOneForUpdateInput
+  description: String
   tags: TagRelateToManyForUpdateInput
-}
-
-input UserRelateToOneForUpdateInput {
-  create: UserCreateInput
-  connect: UserWhereUniqueInput
-  disconnect: Boolean
+  vendor: UserRelateToOneForUpdateInput
+  buyers: UserRelateToManyForUpdateInput
+  createdAt: DateTime
+  images: ImageFieldInput
 }
 
 input TagRelateToManyForUpdateInput {
@@ -323,21 +358,32 @@ input TagRelateToManyForUpdateInput {
   connect: [TagWhereUniqueInput!]
 }
 
-input PostUpdateArgs {
-  where: PostWhereUniqueInput!
-  data: PostUpdateInput!
-}
-
-input PostCreateInput {
-  title: String
-  content: JSON
-  author: UserRelateToOneForCreateInput
-  tags: TagRelateToManyForCreateInput
-}
-
-input UserRelateToOneForCreateInput {
+input UserRelateToOneForUpdateInput {
   create: UserCreateInput
   connect: UserWhereUniqueInput
+  disconnect: Boolean
+}
+
+input ImageFieldInput {
+  upload: Upload!
+}
+
+"""The `Upload` scalar type represents a file upload."""
+scalar Upload
+
+input ProductUpdateArgs {
+  where: ProductWhereUniqueInput!
+  data: ProductUpdateInput!
+}
+
+input ProductCreateInput {
+  title: String
+  description: String
+  tags: TagRelateToManyForCreateInput
+  vendor: UserRelateToOneForCreateInput
+  buyers: UserRelateToManyForCreateInput
+  createdAt: DateTime
+  images: ImageFieldInput
 }
 
 input TagRelateToManyForCreateInput {
@@ -345,11 +391,16 @@ input TagRelateToManyForCreateInput {
   connect: [TagWhereUniqueInput!]
 }
 
+input UserRelateToOneForCreateInput {
+  create: UserCreateInput
+  connect: UserWhereUniqueInput
+}
+
 type Tag {
   id: ID!
   name: String
-  posts(where: PostWhereInput! = {}, orderBy: [PostOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: PostWhereUniqueInput): [Post!]
-  postsCount(where: PostWhereInput! = {}): Int
+  products(where: ProductWhereInput! = {}, orderBy: [ProductOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ProductWhereUniqueInput): [Product!]
+  productsCount(where: ProductWhereInput! = {}): Int
 }
 
 input TagWhereUniqueInput {
@@ -362,7 +413,7 @@ input TagWhereInput {
   NOT: [TagWhereInput!]
   id: IDFilter
   name: StringFilter
-  posts: PostManyRelationFilter
+  products: ProductManyRelationFilter
 }
 
 input TagOrderByInput {
@@ -372,7 +423,7 @@ input TagOrderByInput {
 
 input TagUpdateInput {
   name: String
-  posts: PostRelateToManyForUpdateInput
+  products: ProductRelateToManyForUpdateInput
 }
 
 input TagUpdateArgs {
@@ -382,7 +433,7 @@ input TagUpdateArgs {
 
 input TagCreateInput {
   name: String
-  posts: PostRelateToManyForCreateInput
+  products: ProductRelateToManyForCreateInput
 }
 
 """
@@ -403,12 +454,12 @@ type Mutation {
   updateRoles(data: [RoleUpdateArgs!]!): [Role]
   deleteRole(where: RoleWhereUniqueInput!): Role
   deleteRoles(where: [RoleWhereUniqueInput!]!): [Role]
-  createPost(data: PostCreateInput!): Post
-  createPosts(data: [PostCreateInput!]!): [Post]
-  updatePost(where: PostWhereUniqueInput!, data: PostUpdateInput!): Post
-  updatePosts(data: [PostUpdateArgs!]!): [Post]
-  deletePost(where: PostWhereUniqueInput!): Post
-  deletePosts(where: [PostWhereUniqueInput!]!): [Post]
+  createProduct(data: ProductCreateInput!): Product
+  createProducts(data: [ProductCreateInput!]!): [Product]
+  updateProduct(where: ProductWhereUniqueInput!, data: ProductUpdateInput!): Product
+  updateProducts(data: [ProductUpdateArgs!]!): [Product]
+  deleteProduct(where: ProductWhereUniqueInput!): Product
+  deleteProducts(where: [ProductWhereUniqueInput!]!): [Product]
   createTag(data: TagCreateInput!): Tag
   createTags(data: [TagCreateInput!]!): [Tag]
   updateTag(where: TagWhereUniqueInput!, data: TagUpdateInput!): Tag
@@ -457,9 +508,9 @@ type Query {
   roles(where: RoleWhereInput! = {}, orderBy: [RoleOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: RoleWhereUniqueInput): [Role!]
   role(where: RoleWhereUniqueInput!): Role
   rolesCount(where: RoleWhereInput! = {}): Int
-  posts(where: PostWhereInput! = {}, orderBy: [PostOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: PostWhereUniqueInput): [Post!]
-  post(where: PostWhereUniqueInput!): Post
-  postsCount(where: PostWhereInput! = {}): Int
+  products(where: ProductWhereInput! = {}, orderBy: [ProductOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ProductWhereUniqueInput): [Product!]
+  product(where: ProductWhereUniqueInput!): Product
+  productsCount(where: ProductWhereInput! = {}): Int
   tags(where: TagWhereInput! = {}, orderBy: [TagOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: TagWhereUniqueInput): [Tag!]
   tag(where: TagWhereUniqueInput!): Tag
   tagsCount(where: TagWhereInput! = {}): Int

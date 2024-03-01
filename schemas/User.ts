@@ -7,6 +7,7 @@ import {
     password,
     timestamp,
     checkbox,
+    select,
 } from '@keystone-6/core/fields';
   
 
@@ -18,6 +19,16 @@ export const User = list({
             isFilterable: true
         }),
 
+        gender: select({
+            type: 'enum',
+            options: [
+                {label: 'Male', value: 'M'},
+                {label: 'Female', value: 'F'}
+            ]
+        }),
+
+        birthdate: timestamp(),
+
         email: text({
             validation: { isRequired: true },
             isIndexed: 'unique',
@@ -26,9 +37,9 @@ export const User = list({
 
         password: password({ validation: { isRequired: true } }),
 
-        // we can use this field to see what Posts this User has authored
-        //   more on that in the Post list below
-        posts: relationship({ ref: 'Post.author', many: true }),
+        publishedProd: relationship({ ref: 'Product.vendor', many: true }),
+
+        historyProd: relationship({ ref: 'Product.buyers', many: true }),
 
         role: relationship({
             ref: "Role.assignedTo",

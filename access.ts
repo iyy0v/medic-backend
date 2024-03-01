@@ -44,4 +44,15 @@ export const rules = {
     // Otherwise they may only update themselves!
     return { id: { equals: session!.itemId } };
   },
+
+  canManageProducts({ session }: ListAccessArgs) {
+    if (!isSignedIn({ session })) {
+      return false;
+    }
+    if (permissions.canManageProducts({ session })) {
+      return true;
+    }
+    // Otherwise they may only update themselves!
+    return { id: { equals: session!.itemId } };
+  },
 };

@@ -1,4 +1,4 @@
 export { User } from "./User";
 export { Role } from "./Role";
-export { Post } from "./Post";
+export { Product } from "./Product";
 export { Tag } from "./Tag";

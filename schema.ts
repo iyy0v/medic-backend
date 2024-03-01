@@ -1,9 +1,9 @@
 import type { Lists } from '.keystone/types';
-import { User, Role, Post, Tag } from './schemas'
+import { User, Role, Product, Tag } from './schemas'
 
 export const lists: Lists = {
   User,
   Role,
-  Post,
+  Product,
   Tag
 };

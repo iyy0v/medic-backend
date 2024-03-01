@@ -47,15 +47,15 @@ var permissionFields = {
   canManageRoles: (0, import_fields.checkbox)({
     defaultValue: false,
     label: "User can CRUD roles"
-  }),
-  canManageCart: (0, import_fields.checkbox)({
-    defaultValue: false,
-    label: "User can see and manage cart and cart items"
-  }),
-  canManageOrders: (0, import_fields.checkbox)({
-    defaultValue: false,
-    label: "User can see and manage orders"
   })
+  // canManageCart: checkbox({
+  //   defaultValue: false,
+  //   label: "User can see and manage cart and cart items",
+  // }),
+  // canManageOrders: checkbox({
+  //   defaultValue: false,
+  //   label: "User can see and manage orders",
+  // }),
 };
 var permissionsList = Object.keys(permissionFields);
 
@@ -80,15 +80,22 @@ var User = (0, import_core.list)({
       validation: { isRequired: true },
       isFilterable: true
     }),
+    gender: (0, import_fields3.select)({
+      type: "enum",
+      options: [
+        { label: "Male", value: "M" },
+        { label: "Female", value: "F" }
+      ]
+    }),
+    birthdate: (0, import_fields3.timestamp)(),
     email: (0, import_fields3.text)({
       validation: { isRequired: true },
       isIndexed: "unique",
       isFilterable: true
     }),
     password: (0, import_fields3.password)({ validation: { isRequired: true } }),
-    // we can use this field to see what Posts this User has authored
-    //   more on that in the Post list below
-    posts: (0, import_fields3.relationship)({ ref: "Post.author", many: true }),
+    publishedProd: (0, import_fields3.relationship)({ ref: "Product.vendor", many: true }),
+    historyProd: (0, import_fields3.relationship)({ ref: "Product.buyers", many: true }),
     role: (0, import_fields3.relationship)({
       ref: "Role.assignedTo",
       access: {
@@ -173,57 +180,18 @@ var Role = (0, import_core2.list)({
   }
 });
 
-// schemas/Post.ts
+// schemas/Product.ts
 var import_core3 = require("@keystone-6/core");
 var import_access4 = require("@keystone-6/core/access");
 var import_fields6 = require("@keystone-6/core/fields");
-var import_fields_document = require("@keystone-6/fields-document");
-var Post = (0, import_core3.list)({
-  // WARNING
-  //   for this starter project, anyone can create, query, update and delete anything
-  //   if you want to prevent random people on the internet from accessing your data,
-  //   you can find out more at https://keystonejs.com/docs/guides/auth-and-access-control
+var Product = (0, import_core3.list)({
   access: import_access4.allowAll,
-  // this is the fields for our Post list
   fields: {
     title: (0, import_fields6.text)({ validation: { isRequired: true } }),
-    // the document field can be used for making rich editable content
-    //   you can find out more at https://keystonejs.com/docs/guides/document-fields
-    content: (0, import_fields_document.document)({
-      formatting: true,
-      layouts: [
-        [1, 1],
-        [1, 1, 1],
-        [2, 1],
-        [1, 2],
-        [1, 2, 1]
-      ],
-      links: true,
-      dividers: true
-    }),
-    // with this field, you can set a User as the author for a Post
-    author: (0, import_fields6.relationship)({
-      // we could have used 'User', but then the relationship would only be 1-way
-      ref: "User.posts",
-      // this is some customisations for changing how this will look in the AdminUI
-      ui: {
-        displayMode: "cards",
-        cardFields: ["name", "email"],
-        inlineEdit: { fields: ["name", "email"] },
-        linkToItem: true,
-        inlineConnect: true
-      },
-      // a Post can only have one author
-      //   this is the default, but we show it here for verbosity
-      many: false
-    }),
-    // with this field, you can add some Tags to Posts
+    description: (0, import_fields6.text)(),
     tags: (0, import_fields6.relationship)({
-      // we could have used 'Tag', but then the relationship would only be 1-way
-      ref: "Tag.posts",
-      // a Post can have many Tags, not just one
+      ref: "Tag.products",
       many: true,
-      // this is some customisations for changing how this will look in the AdminUI
       ui: {
         displayMode: "cards",
         cardFields: ["name"],
@@ -232,7 +200,33 @@ var Post = (0, import_core3.list)({
         inlineConnect: true,
         inlineCreate: { fields: ["name"] }
       }
-    })
+    }),
+    vendor: (0, import_fields6.relationship)({
+      ref: "User.publishedProd",
+      many: false,
+      ui: {
+        displayMode: "cards",
+        cardFields: ["name", "email"],
+        inlineEdit: { fields: ["name", "email"] },
+        linkToItem: true,
+        inlineConnect: true
+      }
+    }),
+    buyers: (0, import_fields6.relationship)({
+      ref: "User.historyProd",
+      many: true,
+      ui: {
+        displayMode: "cards",
+        cardFields: ["name", "email"],
+        inlineEdit: { fields: ["name", "email"] },
+        linkToItem: true,
+        inlineConnect: true
+      }
+    }),
+    createdAt: (0, import_fields6.timestamp)({
+      defaultValue: { kind: "now" }
+    }),
+    images: (0, import_fields6.image)({ storage: "my_local_images" })
   }
 });
 
@@ -241,17 +235,10 @@ var import_core4 = require("@keystone-6/core");
 var import_access5 = require("@keystone-6/core/access");
 var import_fields7 = require("@keystone-6/core/fields");
 var Tag = (0, import_core4.list)({
-  // WARNING
-  //   for this starter project, anyone can create, query, update and delete anything
-  //   if you want to prevent random people on the internet from accessing your data,
-  //   you can find out more at https://keystonejs.com/docs/guides/auth-and-access-control
   access: import_access5.allowAll,
-  // setting this to isHidden for the user interface prevents this list being visible in the Admin UI
-  // this is the fields for our Tag list
   fields: {
     name: (0, import_fields7.text)(),
-    // this can be helpful to find out all the Posts associated with a Tag
-    posts: (0, import_fields7.relationship)({ ref: "Post.tags", many: true })
+    products: (0, import_fields7.relationship)({ ref: "Product.tags", many: true })
   }
 });
 
@@ -259,7 +246,7 @@ var Tag = (0, import_core4.list)({
 var lists = {
   User,
   Role,
-  Post,
+  Product,
   Tag
 };
 
@@ -297,14 +284,28 @@ var session = (0, import_session.statelessSessions)({
 var keystone_default = withAuth(
   (0, import_core5.config)({
     db: {
-      // we're using sqlite for the fastest startup experience
-      //   for more information on what database might be appropriate for you
-      //   see https://keystonejs.com/docs/guides/choosing-a-database#title
       provider: "sqlite",
       url: "file:./keystone.db"
     },
     lists,
-    session
+    session,
+    storage: {
+      my_local_images: {
+        // Images that use this store will be stored on the local machine
+        kind: "local",
+        // This store is used for the image field type
+        type: "image",
+        // The URL that is returned in the Keystone GraphQL API
+        generateUrl: (path) => `http://localhost:3000/images${path}`,
+        // The route that will be created in Keystone's backend to serve the images
+        serverRoute: {
+          path: "/images"
+        },
+        // Set serverRoute to null if you don't want a route to be created in Keystone
+        // serverRoute: null
+        storagePath: "public/images"
+      }
+    }
   })
 );
 //# sourceMappingURL=config.js.map

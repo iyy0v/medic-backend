@@ -14,9 +14,12 @@ generator client {
 model User {
   id                      String    @id @default(cuid())
   name                    String    @default("")
+  gender                  String?
+  birthdate               DateTime?
   email                   String    @unique @default("")
   password                String
-  posts                   Post[]    @relation("Post_author")
+  publishedProd           Product[] @relation("Product_vendor")
+  historyProd             Product[] @relation("Product_buyers")
   role                    Role?     @relation("User_role", fields: [roleId], references: [id])
   roleId                  String?   @map("role")
   createdAt               DateTime? @default(now())
@@ -35,24 +38,29 @@ model Role {
   canSeeOtherUsers  Boolean @default(false)
   canManageUsers    Boolean @default(false)
   canManageRoles    Boolean @default(false)
-  canManageCart     Boolean @default(false)
-  canManageOrders   Boolean @default(false)
   assignedTo        User[]  @relation("User_role")
 }
 
-model Post {
-  id       String  @id @default(cuid())
-  title    String  @default("")
-  content  String  @default("[{\"type\":\"paragraph\",\"children\":[{\"text\":\"\"}]}]")
-  author   User?   @relation("Post_author", fields: [authorId], references: [id])
-  authorId String? @map("author")
-  tags     Tag[]   @relation("Post_tags")
+model Product {
+  id               String    @id @default(cuid())
+  title            String    @default("")
+  description      String    @default("")
+  tags             Tag[]     @relation("Product_tags")
+  vendor           User?     @relation("Product_vendor", fields: [vendorId], references: [id])
+  vendorId         String?   @map("vendor")
+  buyers           User[]    @relation("Product_buyers")
+  createdAt        DateTime? @default(now())
+  images_filesize  Int?
+  images_extension String?
+  images_width     Int?
+  images_height    Int?
+  images_id        String?
 
-  @@index([authorId])
+  @@index([vendorId])
 }
 
 model Tag {
-  id    String @id @default(cuid())
-  name  String @default("")
-  posts Post[] @relation("Post_tags")
+  id       String    @id @default(cuid())
+  name     String    @default("")
+  products Product[] @relation("Product_tags")
 }
