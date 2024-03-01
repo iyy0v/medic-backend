@@ -93,7 +93,7 @@ var User = (0, import_core.list)({
       isIndexed: "unique",
       isFilterable: true
     }),
-    phone: (0, import_fields3.text)({ validation: { isRequired: true } }),
+    phone: (0, import_fields3.text)(),
     password: (0, import_fields3.password)({ validation: { isRequired: true } }),
     publishedProd: (0, import_fields3.relationship)({ ref: "Product.vendor", many: true }),
     historyProd: (0, import_fields3.relationship)({ ref: "Product.buyers", many: true }),

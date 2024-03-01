@@ -29,6 +29,6 @@ export default withAuth(
         // serverRoute: null
         storagePath: 'public/images',
       },
-    }
+    },
   }),
 );

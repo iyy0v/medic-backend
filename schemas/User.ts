@@ -36,7 +36,7 @@ export const User = list({
             isFilterable: true
         }),
 
-        phone: text({ validation: { isRequired: true } }),
+        phone: text(),
 
         password: password({ validation: { isRequired: true } }),
 
