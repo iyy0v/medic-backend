@@ -17,11 +17,17 @@ model User {
   gender                  String?
   birthdate               DateTime?
   email                   String    @unique @default("")
+  phone                   String    @default("")
   password                String
   publishedProd           Product[] @relation("Product_vendor")
   historyProd             Product[] @relation("Product_buyers")
   role                    Role?     @relation("User_role", fields: [roleId], references: [id])
   roleId                  String?   @map("role")
+  picture_filesize        Int?
+  picture_extension       String?
+  picture_width           Int?
+  picture_height          Int?
+  picture_id              String?
   createdAt               DateTime? @default(now())
   isInitialUser           Boolean   @default(false)
   passwordResetToken      String?
@@ -46,7 +52,7 @@ model Product {
   name        String    @default("")
   description String    @default("")
   tags        Tag[]     @relation("Product_tags")
-  price       Float
+  price       Float     @default(0)
   vendor      User?     @relation("Product_vendor", fields: [vendorId], references: [id])
   vendorId    String?   @map("vendor")
   buyers      User[]    @relation("Product_buyers")

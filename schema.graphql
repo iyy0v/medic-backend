@@ -7,12 +7,14 @@ type User {
   gender: UserGenderType
   birthdate: DateTime
   email: String
+  phone: String
   password: PasswordState
   publishedProd(where: ProductWhereInput! = {}, orderBy: [ProductOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ProductWhereUniqueInput): [Product!]
   publishedProdCount(where: ProductWhereInput! = {}): Int
   historyProd(where: ProductWhereInput! = {}, orderBy: [ProductOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ProductWhereUniqueInput): [Product!]
   historyProdCount(where: ProductWhereInput! = {}): Int
   role: Role
+  picture: ImageFieldOutput
   createdAt: DateTime
   isInitialUser: Boolean
   passwordResetToken: PasswordState
@@ -31,6 +33,22 @@ type PasswordState {
   isSet: Boolean!
 }
 
+type ImageFieldOutput {
+  id: ID!
+  filesize: Int!
+  width: Int!
+  height: Int!
+  extension: ImageExtension!
+  url: String!
+}
+
+enum ImageExtension {
+  jpg
+  png
+  webp
+  gif
+}
+
 input UserWhereUniqueInput {
   id: ID
   email: String
@@ -45,6 +63,7 @@ input UserWhereInput {
   gender: UserGenderTypeNullableFilter
   birthdate: DateTimeNullableFilter
   email: StringFilter
+  phone: StringFilter
   publishedProd: ProductManyRelationFilter
   historyProd: ProductManyRelationFilter
   role: RoleWhereInput
@@ -133,6 +152,7 @@ input UserOrderByInput {
   gender: OrderDirection
   birthdate: OrderDirection
   email: OrderDirection
+  phone: OrderDirection
   createdAt: OrderDirection
   isInitialUser: OrderDirection
   passwordResetIssuedAt: OrderDirection
@@ -149,10 +169,12 @@ input UserUpdateInput {
   gender: UserGenderType
   birthdate: DateTime
   email: String
+  phone: String
   password: String
   publishedProd: ProductRelateToManyForUpdateInput
   historyProd: ProductRelateToManyForUpdateInput
   role: RoleRelateToOneForUpdateInput
+  picture: ImageFieldInput
   createdAt: DateTime
   isInitialUser: Boolean
   passwordResetToken: String
@@ -173,6 +195,13 @@ input RoleRelateToOneForUpdateInput {
   disconnect: Boolean
 }
 
+input ImageFieldInput {
+  upload: Upload!
+}
+
+"""The `Upload` scalar type represents a file upload."""
+scalar Upload
+
 input UserUpdateArgs {
   where: UserWhereUniqueInput!
   data: UserUpdateInput!
@@ -183,10 +212,12 @@ input UserCreateInput {
   gender: UserGenderType
   birthdate: DateTime
   email: String
+  phone: String
   password: String
   publishedProd: ProductRelateToManyForCreateInput
   historyProd: ProductRelateToManyForCreateInput
   role: RoleRelateToOneForCreateInput
+  picture: ImageFieldInput
   createdAt: DateTime
   isInitialUser: Boolean
   passwordResetToken: String
@@ -455,22 +486,6 @@ type Image {
   image: ImageFieldOutput
 }
 
-type ImageFieldOutput {
-  id: ID!
-  filesize: Int!
-  width: Int!
-  height: Int!
-  extension: ImageExtension!
-  url: String!
-}
-
-enum ImageExtension {
-  jpg
-  png
-  webp
-  gif
-}
-
 input ImageWhereUniqueInput {
   id: ID
 }
@@ -497,13 +512,6 @@ input ProductRelateToOneForUpdateInput {
   connect: ProductWhereUniqueInput
   disconnect: Boolean
 }
-
-input ImageFieldInput {
-  upload: Upload!
-}
-
-"""The `Upload` scalar type represents a file upload."""
-scalar Upload
 
 input ImageUpdateArgs {
   where: ImageWhereUniqueInput!

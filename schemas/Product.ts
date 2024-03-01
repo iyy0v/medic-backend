@@ -26,6 +26,7 @@ export const Product = list({
 
       price: float({ 
         validation: { isRequired: true, min: 0 },
+        defaultValue: 0
       },),
 
       vendor: relationship({
